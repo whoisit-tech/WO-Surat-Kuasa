@@ -162,16 +162,12 @@ success_rate = pct(success_sk, total_sk)
 multi_sk_kontrak = df[df["is_multi_sk"] == 1]["NoKontrak"].nunique()
 multi_sk_rate = pct(multi_sk_kontrak, total_kontrak)
 
-bhjp_sk = df["is_bhjp"].sum()
-bhjp_rate = pct(bhjp_sk, total_sk)
-
 c1, c2, c3, c4, c5, c6 = st.columns(6)
 c1.metric("Total SK", f"{total_sk:,}")
 c2.metric("Total Kontrak", f"{total_kontrak:,}")
 c3.metric("SK Sukses", f"{success_sk:,}")
 c4.metric("Success Rate", f"{success_rate}%")
 c5.metric("Kontrak Cetak SK >1", f"{multi_sk_kontrak:,}")
-c6.metric("BHJP Ratio", f"{bhjp_rate}%")
 
 st.divider()
 
@@ -249,20 +245,6 @@ st.dataframe(
 )
 
 # =====================================================
-# CETAK SK >1 ANALYSIS
-# =====================================================
-multi_sk_region = (
-    df[df["is_multi_sk"] == 1]
-    .groupby("branch_city")["NoKontrak"]
-    .nunique()
-    .reset_index(name="kontrak_multi_sk")
-    .sort_values("kontrak_multi_sk", ascending=False)
-)
-
-st.subheader(" Region dengan Kontrak Cetak SK > 1")
-st.dataframe(multi_sk_region, use_container_width=True)
-
-# =====================================================
 # OVERDUE vs STATUS
 # =====================================================
 bucket_perf = (
@@ -287,5 +269,6 @@ st.plotly_chart(fig_bucket, use_container_width=True)
 with st.expander(" Raw Data Detail"):
 
     st.dataframe(df, use_container_width=True)
+
 
 
