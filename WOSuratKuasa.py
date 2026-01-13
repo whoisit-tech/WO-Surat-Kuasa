@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 st.title(" Dashboard Monitoring Surat Kuasa (SK)")
-st.caption("Performance • Risk • Cost Proxy (BHJP) • Control")
+st.caption("Periode Januari - Desember 2025")
 
 # =====================================================
 # HELPER FUNCTION
@@ -76,15 +76,6 @@ df["month"] = df["assign_date"].dt.to_period("M").astype(str)
 
 # SLA (hari)
 df["sla_hari"] = (df["finish_date"] - df["assign_date"]).dt.days
-
-# =====================================================
-# BHJP PROXY (BASED ON COLLECTOR TYPE)
-# =====================================================
-df["is_bhjp"] = np.where(
-    df["collector_type"].str.upper() == "EXTERNAL",
-    1,
-    0
-)
 
 # =====================================================
 # CETAK SK > 1 (PER NO KONTRAK)
@@ -296,4 +287,5 @@ st.plotly_chart(fig_bucket, use_container_width=True)
 with st.expander(" Raw Data Detail"):
 
     st.dataframe(df, use_container_width=True)
+
 
