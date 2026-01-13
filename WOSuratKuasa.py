@@ -5,7 +5,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
 
 # =====================================================
 # PAGE CONFIG
@@ -294,4 +293,5 @@ st.plotly_chart(fig_bucket, use_container_width=True)
 # RAW DATA
 # =====================================================
 with st.expander(" Raw Data Detail"):
+
     st.dataframe(df, use_container_width=True)
