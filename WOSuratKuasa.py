@@ -31,6 +31,13 @@ def load_data():
         .astype(float)
     )
 
+    # Clean Date
+       for col in ["assign_date", "finish_date"]:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+
+    return df
+
     # Status mapping
     sukses_status = ['EARLY_TERMINATION', 'CREDIT_SETTLEMENT_PROCESS']
     gagal_status = ['CANCEL', 'ASSIGNMENT_LETTER']
@@ -213,6 +220,7 @@ st.plotly_chart(fig2, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data")
 st.dataframe(filtered)
+
 
 
 
