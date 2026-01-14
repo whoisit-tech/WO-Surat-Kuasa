@@ -10,7 +10,7 @@ import plotly.express as px
 # PAGE CONFIG
 # =====================================================
 st.set_page_config(page_title="Apps WO Monitoring", layout="wide")
-st.title("📊 Dashboard Monitoring Surat Kuasa (WO)")
+st.title(" Dashboard Monitoring Surat Kuasa (WO)")
 
 # =====================================================
 # LOAD DATA
@@ -53,7 +53,7 @@ df = load_data()
 # =====================================================
 # SIDEBAR FILTER
 # =====================================================
-st.sidebar.header("🔎 Filter")
+st.sidebar.header(" Filter")
 
 # Bulan filter
 bulan_opt = sorted(df['bulan'].dropna().unique())
@@ -93,7 +93,7 @@ filtered = df[
 if search_kontrak:
     filtered = filtered[filtered['NoKontrak'].astype(str).str.contains(search_kontrak, case=False)]
 # =====================================================
-st.sidebar.header("🔎 Filter")
+st.sidebar.header(" Filter")
 
 collector_type = st.sidebar.multiselect(
     "Collector Type",
@@ -112,8 +112,6 @@ filtered = df[
     (df['branch_city'].isin(branch_city))
 ]
 
-# =====================================================
-# KPI SUMMARY
 # =====================================================
 # KPI SUMMARY
 # =====================================================
@@ -157,7 +155,7 @@ col4.metric("SK Gagal", f"{len(gagal)} ({len(gagal)/total_sk*100:.1f}%)")
 # =====================================================
 # TREN SK BULANAN
 # =====================================================
-st.subheader("📈 Tren SK Bulanan")
+st.subheader(" Tren SK Bulanan")
 
 trend = (
     filtered
@@ -174,7 +172,7 @@ st.dataframe(trend)
 # =====================================================
 # REGION PERFORMANCE
 # =====================================================
-st.subheader("🌍 Region Performance")
+st.subheader(" Region Performance")
 
 region_perf = (
     filtered
@@ -198,7 +196,7 @@ st.dataframe(region_perf)
 # =====================================================
 # PROFESSIONAL COLLECTOR PERFORMANCE
 # =====================================================
-st.subheader("👤 Professional Collector Performance")
+st.subheader(" Professional Collector Performance")
 
 collector_perf = (
     filtered
@@ -222,7 +220,7 @@ st.dataframe(collector_perf)
 # =====================================================
 # NO KONTRAK PERFORMANCE
 # =====================================================
-st.subheader("📄 Performance per No Kontrak")
+st.subheader(" Performance per No Kontrak")
 
 kontrak_perf = (
     filtered
@@ -243,7 +241,7 @@ st.dataframe(kontrak_perf)
 # =====================================================
 # OVERDUE DISTRIBUTION
 # =====================================================
-st.subheader("⏱️ Distribusi Overdue")
+st.subheader(" Distribusi Overdue")
 
 fig2 = px.histogram(filtered, x='overdue_clean', nbins=30)
 st.plotly_chart(fig2, use_container_width=True)
@@ -251,5 +249,6 @@ st.plotly_chart(fig2, use_container_width=True)
 # =====================================================
 # RAW DATA
 # =====================================================
-st.subheader("📋 Raw Data")
+st.subheader(" Raw Data")
 st.dataframe(filtered)
+
