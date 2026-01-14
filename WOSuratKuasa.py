@@ -92,25 +92,6 @@ filtered = df[
 
 if search_kontrak:
     filtered = filtered[filtered['NoKontrak'].astype(str).str.contains(search_kontrak, case=False)]
-# =====================================================
-st.sidebar.header(" Filter")
-
-collector_type = st.sidebar.multiselect(
-    "Collector Type",
-    df['collector_type'].dropna().unique(),
-    default=df['collector_type'].dropna().unique()
-)
-
-branch_city = st.sidebar.multiselect(
-    "Region / Branch",
-    df['branch_city'].dropna().unique(),
-    default=df['branch_city'].dropna().unique()
-)
-
-filtered = df[
-    (df['collector_type'].isin(collector_type)) &
-    (df['branch_city'].isin(branch_city))
-]
 
 # =====================================================
 # KPI SUMMARY
@@ -251,4 +232,5 @@ st.plotly_chart(fig2, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data")
 st.dataframe(filtered)
+
 
