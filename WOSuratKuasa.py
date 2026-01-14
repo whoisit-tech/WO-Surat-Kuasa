@@ -192,8 +192,8 @@ kontrak_perf = (
             'sla_days',
             lambda x: x[filtered.loc[x.index, 'hasil'] == 'SUKSES'].sum()
         )
-)
-.reset_index()
+    )
+    .reset_index()
 )
 
 st.dataframe(kontrak_perf)
@@ -222,4 +222,5 @@ st.plotly_chart(fig_k, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
