@@ -41,7 +41,10 @@ def load_data():
     )
 
     # SLA (hari FIX)
-    df['sla_days'] = (df['finish_date'] - df['assign_date']).dt.days
+    df['sla_days_exact'] = (
+        (df['finish_date'] - df['assign_date'])
+        .dt.total_seconds() / (24*3600)
+    )
 
     # Bulan
     df['bulan'] = df['assign_date'].dt.to_period('M').astype(str)
@@ -187,6 +190,7 @@ kontrak_perf = (
     .groupby('NoKontrak')
     .agg(
         region=('branch_city', 'first'),
+        tipe_surat=('tipe_surat', lambda x: ', '.join(x.dropna().unique())),
         total_sk=('NoKontrak', 'count'),
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
@@ -223,6 +227,7 @@ st.plotly_chart(fig_k, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
