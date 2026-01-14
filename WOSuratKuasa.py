@@ -190,7 +190,7 @@ st.dataframe(collector_perf)
 # =====================================================
 # NO KONTRAK PERFORMANCE (FINAL VERSION)
 # =====================================================
-st.subheader("📄 Performance per No Kontrak")
+st.subheader(" Performance per No Kontrak")
 
 kontrak_perf = (
     filtered
@@ -234,6 +234,7 @@ st.plotly_chart(fig_k, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
