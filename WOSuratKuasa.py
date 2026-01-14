@@ -224,16 +224,12 @@ fig_c = px.bar(collector_perf.sort_values('total_sk', ascending=False).head(10),
                x='professional_collector', y='total_sk')
 st.plotly_chart(fig_c, use_container_width=True)
 
-st.subheader(" Top 10 No Kontrak (Cetak SK Terbanyak)")
-top_kontrak = sk_per_kontrak.sort_values('total_sk', ascending=False).head(10)
-fig_k = px.bar(top_kontrak, x='NoKontrak', y='total_sk')
-st.plotly_chart(fig_k, use_container_width=True)
-
 # =====================================================
 # RAW DATA (FILTERED)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
