@@ -113,25 +113,6 @@ col2.metric("Total No Kontrak", total_kontrak)
 col3.metric("SK Sukses", f"{len(sukses)} ({len(sukses)/total_sk*100:.1f}%)")
 col4.metric("SK Gagal", f"{len(gagal)} ({len(gagal)/total_sk*100:.1f}%)")
 col5.metric("No Kontrak SK > 1x", f"{len(sk_lebih_1)} ({len(sk_lebih_1)/total_kontrak*100:.1f}%)")
-# =====================================================
-total_sk = len(filtered)
-total_kontrak = filtered['NoKontrak'].nunique()
-
-sukses = filtered[filtered['hasil'] == 'SUKSES']
-gagal = filtered[filtered['hasil'] == 'GAGAL']
-
-sk_multi = (
-    filtered.groupby('NoKontrak')
-    .size()
-    .reset_index(name='total_sk')
-    .query('total_sk > 1')
-)
-
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Total SK", total_sk)
-col2.metric("Total No Kontrak (Distinct)", total_kontrak)
-col3.metric("SK Sukses", f"{len(sukses)} ({len(sukses)/total_sk*100:.1f}%)")
-col4.metric("SK Gagal", f"{len(gagal)} ({len(gagal)/total_sk*100:.1f}%)")
 
 # =====================================================
 # TREN SK BULANAN
@@ -232,5 +213,6 @@ st.plotly_chart(fig2, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data")
 st.dataframe(filtered)
+
 
 
