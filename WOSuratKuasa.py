@@ -19,8 +19,9 @@ st.title(" Dashboard Monitoring Surat Kuasa (WO)")
 def load_data():
     df = pd.read_excel("AppsWO.xlsx")
 
-    # Date parsing
-    df['assign_date'] = pd.to_datetime(df['assign_date'], errors='coerce')
+    # Date parsing (force datetime)
+    df['assign_date'] = pd.to_datetime(df['assign_date'], errors='coerce', infer_datetime_format=True)
+    df['finish_date'] = pd.to_datetime(df['finish_date'], errors='coerce', infer_datetime_format=True)
     df['finish_date'] = pd.to_datetime(df['finish_date'], errors='coerce')
 
     # Clean overdue -> numeric only
@@ -30,13 +31,6 @@ def load_data():
         .str.extract('(\d+)')
         .astype(float)
     )
-
-    # Clean Date
-       for col in ["assign_date", "finish_date"]:
-        if col in df.columns:
-            df[col] = pd.to_datetime(df[col], errors="coerce")
-
-    return df
 
     # Status mapping
     sukses_status = ['EARLY_TERMINATION', 'CREDIT_SETTLEMENT_PROCESS']
@@ -220,6 +214,7 @@ st.plotly_chart(fig2, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data")
 st.dataframe(filtered)
+
 
 
 
