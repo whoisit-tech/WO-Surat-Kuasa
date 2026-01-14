@@ -177,17 +177,19 @@ collector_perf['gagal_%'] = collector_perf['gagal'] / collector_perf['total_sk']
 
 st.dataframe(collector_perf)
 
-## PERFORMANCE PER NO KONTRAK
-st.subheader(" Performance per No Kontrak" )
+# =====================================================
+# NO KONTRAK PERFORMANCE (FINAL VERSION)
+# =====================================================
+st.subheader("📄 Performance per No Kontrak")
 
 kontrak_perf = (
     filtered
     .groupby('NoKontrak')
-    .agg
+    .agg(
         region=('branch_city', 'first'),
         total_sk=('NoKontrak', 'count'),
-        sukses=('hasil', lambda x: (x =='SUKSES').sum()),
-        gagal=('hasil', lambda x: (x =='GAGAL').sum()),
+        sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
+        gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
         sla_sukses_days=(
             'sla_days',
             lambda x: x[filtered.loc[x.index, 'hasil'] == 'SUKSES'].sum()
@@ -197,7 +199,6 @@ kontrak_perf = (
 )
 
 st.dataframe(kontrak_perf)
-
 
 # =====================================================
 # TOP 10 VISUALIZATION
@@ -222,5 +223,6 @@ st.plotly_chart(fig_k, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
