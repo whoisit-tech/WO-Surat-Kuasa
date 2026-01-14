@@ -1,7 +1,6 @@
 # =====================================================
-# EXECUTIVE SK MONITORING DASHBOARD (FINAL VERSION)
+# APPS WO - SURAT KUASA DASHBOARD (FULL VERSION)
 # =====================================================
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -10,19 +9,8 @@ import plotly.express as px
 # =====================================================
 # PAGE CONFIG
 # =====================================================
-st.set_page_config(
-    page_title="Executive SK Monitoring",
-    layout="wide"
-)
-
-st.title(" Dashboard Monitoring Surat Kuasa (SK)")
-st.caption("Periode Januari - Desember 2025")
-
-# =====================================================
-# HELPER FUNCTION
-# =====================================================
-def pct(a, b):
-    return round(a / b * 100, 2) if b else 0
+st.set_page_config(page_title="Apps WO Monitoring", layout="wide")
+st.title(" Dashboard Monitoring Surat Kuasa (WO)")
 
 # =====================================================
 # LOAD DATA
@@ -31,241 +19,177 @@ def pct(a, b):
 def load_data():
     df = pd.read_excel("AppsWO.xlsx")
 
-    for col in ["assign_date", "finish_date"]:
-        if col in df.columns:
-            df[col] = pd.to_datetime(df[col], errors="coerce")
+    # Date parsing
+    df['assign_date'] = pd.to_datetime(df['assign_date'], errors='coerce')
+    df['finish_date'] = pd.to_datetime(df['finish_date'], errors='coerce')
+
+    # Clean overdue -> numeric only
+    df['overdue_clean'] = (
+        df['overdue']
+        .astype(str)
+        .str.extract('(\d+)')
+        .astype(float)
+    )
+
+    # Status mapping
+    sukses_status = ['EARLY_TERMINATION', 'CREDIT_SETTLEMENT_PROCESS']
+    gagal_status = ['CANCEL', 'ASSIGNMENT_LETTER']
+
+    df['hasil'] = np.where(
+        df['status'].isin(sukses_status), 'SUKSES',
+        np.where(df['status'].isin(gagal_status), 'GAGAL', 'LAINNYA')
+    )
+
+    # SLA (days)
+    df['sla_days'] = (df['finish_date'] - df['assign_date']).dt.days
+
+    # Month
+    df['bulan'] = df['assign_date'].dt.to_period('M').astype(str)
 
     return df
 
 df = load_data()
 
 # =====================================================
-# DATA CLEANING
-# =====================================================
-# Overdue numeric
-df["overdue_num"] = (
-    df["overdue"]
-    .astype(str)
-    .str.extract(r"(\d+)")
-    .astype(float)
-)
-
-# Overdue bucket
-df["overdue_bucket"] = pd.cut(
-    df["overdue_num"],
-    bins=[0,30,60,90,120,9999],
-    labels=["0-30","31-60","61-90","91-120",">120"],
-    include_lowest=True
-)
-
-# =====================================================
-# BUSINESS RULE
-# =====================================================
-SUCCESS_STATUS = ["EARLY_TERMINATION", "CREDIT_SETTLEMENT_PROCESS"]
-
-df["status_sk"] = np.where(
-    df["status"].isin(SUCCESS_STATUS),
-    "Sukses",
-    "Gagal"
-)
-
-df["is_success"] = (df["status_sk"] == "Sukses").astype(int)
-
-# Month
-df["month"] = df["assign_date"].dt.to_period("M").astype(str)
-
-# SLA (hari)
-df["sla_hari"] = (df["finish_date"] - df["assign_date"]).dt.days
-
-# =====================================================
-# CETAK SK > 1 (PER NO KONTRAK)
-# =====================================================
-sk_per_kontrak = (
-    df.groupby("NoKontrak")
-    .size()
-    .reset_index(name="jumlah_cetak_sk")
-)
-
-sk_per_kontrak["is_multi_sk"] = np.where(
-    sk_per_kontrak["jumlah_cetak_sk"] > 1, 1, 0
-)
-
-df = df.merge(sk_per_kontrak, on="NoKontrak", how="left")
-
-# =====================================================
 # SIDEBAR FILTER
 # =====================================================
-with st.sidebar:
-    st.header(" Filter Data")
+st.sidebar.header(" Filter")
 
-    min_date = df["assign_date"].min()
-    max_date = df["assign_date"].max()
+collector_type = st.sidebar.multiselect(
+    "Collector Type",
+    df['collector_type'].dropna().unique(),
+    default=df['collector_type'].dropna().unique()
+)
 
-    start_date, end_date = st.date_input(
-        "Assign Date",
-        value=(min_date, max_date)
-    )
+branch_city = st.sidebar.multiselect(
+    "Region / Branch",
+    df['branch_city'].dropna().unique(),
+    default=df['branch_city'].dropna().unique()
+)
 
-    region = st.multiselect(
-        "Region / Branch",
-        sorted(df["branch_city"].dropna().unique())
-    )
-
-    collector = st.multiselect(
-        "Professional Collector",
-        sorted(df["professional_collector"].dropna().unique())
-    )
-
-    collector_type = st.multiselect(
-        "Collector Type",
-        sorted(df["collector_type"].dropna().unique())
-    )
-
-    status_filter = st.multiselect(
-        "Status SK",
-        ["Sukses", "Gagal"],
-        default=["Sukses", "Gagal"]
-    )
-
-    search_kontrak = st.text_input(" Search No Kontrak")
-
-# =====================================================
-# APPLY FILTER
-# =====================================================
-df = df[
-    (df["assign_date"] >= pd.to_datetime(start_date)) &
-    (df["assign_date"] <= pd.to_datetime(end_date))
+filtered = df[
+    (df['collector_type'].isin(collector_type)) &
+    (df['branch_city'].isin(branch_city))
 ]
 
-if region:
-    df = df[df["branch_city"].isin(region)]
+# =====================================================
+# KPI SUMMARY
+# =====================================================
+total_sk = len(filtered)
+total_kontrak = filtered['NoKontrak'].nunique()
 
-if collector:
-    df = df[df["professional_collector"].isin(collector)]
+sukses = filtered[filtered['hasil'] == 'SUKSES']
+gagal = filtered[filtered['hasil'] == 'GAGAL']
 
-if collector_type:
-    df = df[df["collector_type"].isin(collector_type)]
+sk_multi = (
+    filtered.groupby('NoKontrak')
+    .size()
+    .reset_index(name='total_sk')
+    .query('total_sk > 1')
+)
 
-df = df[df["status_sk"].isin(status_filter)]
-
-if search_kontrak:
-    df = df[df["NoKontrak"].astype(str).str.contains(search_kontrak)]
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Total SK", total_sk)
+col2.metric("Total No Kontrak (Distinct)", total_kontrak)
+col3.metric("SK Sukses", f"{len(sukses)} ({len(sukses)/total_sk*100:.1f}%)")
+col4.metric("SK Gagal", f"{len(gagal)} ({len(gagal)/total_sk*100:.1f}%)")
 
 # =====================================================
-# EXECUTIVE KPI
+# TREN SK BULANAN
 # =====================================================
-total_sk = len(df)
-total_kontrak = df["NoKontrak"].nunique()
-success_sk = df["is_success"].sum()
-success_rate = pct(success_sk, total_sk)
+st.subheader(" Tren SK Bulanan")
 
-multi_sk_kontrak = df[df["is_multi_sk"] == 1]["NoKontrak"].nunique()
-multi_sk_rate = pct(multi_sk_kontrak, total_kontrak)
-
-c1, c2, c3, c4, c5, c6 = st.columns(6)
-c1.metric("Total SK", f"{total_sk:,}")
-c2.metric("Total Kontrak", f"{total_kontrak:,}")
-c3.metric("SK Sukses", f"{success_sk:,}")
-c4.metric("Success Rate", f"{success_rate}%")
-c5.metric("Kontrak Cetak SK >1", f"{multi_sk_kontrak:,}")
-
-st.divider()
-
-# =====================================================
-# TREND BULANAN
-# =====================================================
 trend = (
-    df.groupby(["month","status_sk"])
+    filtered
+    .groupby(['bulan', 'hasil'])
     .size()
-    .reset_index(name="jumlah")
+    .reset_index(name='total')
 )
 
-fig_trend = px.line(
-    trend,
-    x="month",
-    y="jumlah",
-    color="status_sk",
-    markers=True,
-    title="Trend SK Bulanan"
-)
-st.plotly_chart(fig_trend, use_container_width=True)
+fig = px.line(trend, x='bulan', y='total', color='hasil', markers=True)
+st.plotly_chart(fig, use_container_width=True)
+
+st.dataframe(trend)
 
 # =====================================================
-# REGION EFFECTIVENESS (DIGABUNG)
+# REGION PERFORMANCE
 # =====================================================
+st.subheader(" Region Performance")
+
 region_perf = (
-    df.groupby("branch_city")
+    filtered
+    .groupby('branch_city')
     .agg(
-        total_sk=("NoKontrak","count"),
-        total_kontrak=("NoKontrak","nunique"),
-        sukses=("is_success","sum"),
-        kontrak_multi_sk=("is_multi_sk","sum"),
-        sla=("sla_hari","count")
+        total_sk=('NoKontrak', 'count'),
+        total_kontrak=('NoKontrak', 'nunique'),
+        sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
+        gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
+        kontrak_multi_sk=('NoKontrak', lambda x: x.value_counts().gt(1).sum()),
+        avg_sla=('sla_days', 'mean')
     )
     .reset_index()
 )
 
-region_perf["success_rate_%"] = region_perf.apply(
-    lambda x: pct(x["sukses"], x["total_sk"]), axis=1
-)
+region_perf['sukses_%'] = region_perf['sukses'] / region_perf['total_sk'] * 100
+region_perf['gagal_%'] = region_perf['gagal'] / region_perf['total_sk'] * 100
 
-region_perf["multi_sk_rate_%"] = region_perf.apply(
-    lambda x: pct(x["kontrak_multi_sk"], x["total_kontrak"]), axis=1
-)
-
-st.subheader(" Region Performance Summary")
-st.dataframe(
-    region_perf.sort_values("total_sk", ascending=False),
-    use_container_width=True
-)
+st.dataframe(region_perf)
 
 # =====================================================
-# COLLECTOR PERFORMANCE
+# PROFESSIONAL COLLECTOR PERFORMANCE
 # =====================================================
-collector_perf = (
-    df.groupby("professional_collector")
-    .agg(
-        total_sk=("NoKontrak","count"),
-        total_kontrak=("NoKontrak","nunique"),
-        sukses=("is_success","sum"),
-        sla=("sla_hari","count"),
-        
-    )
-    .reset_index()
-)
-
-collector_perf["success_rate_%"] = collector_perf.apply(
-    lambda x: pct(x["sukses"], x["total_sk"]), axis=1
-)
-
 st.subheader(" Professional Collector Performance")
-st.dataframe(
-    collector_perf.sort_values("total_sk", ascending=False).head(10),
-    use_container_width=True
+
+collector_perf = (
+    filtered
+    .groupby('professional_collector')
+    .agg(
+        total_sk=('NoKontrak', 'count'),
+        total_kontrak=('NoKontrak', 'nunique'),
+        sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
+        gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
+        kontrak_multi_sk=('NoKontrak', lambda x: x.value_counts().gt(1).sum()),
+        avg_sla=('sla_days', 'mean')
+    )
+    .reset_index()
 )
 
+collector_perf['sukses_%'] = collector_perf['sukses'] / collector_perf['total_sk'] * 100
+collector_perf['gagal_%'] = collector_perf['gagal'] / collector_perf['total_sk'] * 100
+
+st.dataframe(collector_perf)
+
 # =====================================================
-# OVERDUE vs STATUS
+# NO KONTRAK PERFORMANCE
 # =====================================================
-bucket_perf = (
-    df.groupby(["overdue_bucket","status_sk"])
-    .size()
-    .reset_index(name="jumlah")
+st.subheader(" Performance per No Kontrak")
+
+kontrak_perf = (
+    filtered
+    .groupby('NoKontrak')
+    .agg(
+        total_sk=('NoKontrak', 'count'),
+        region=('branch_city', 'first'),
+        sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
+        gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
+        avg_sla=('sla_days', 'mean'),
+        avg_overdue=('overdue_clean', 'mean')
+    )
+    .reset_index()
 )
 
-fig_bucket = px.bar(
-    bucket_perf,
-    x="overdue_bucket",
-    y="jumlah",
-    color="status_sk",
-    barmode="group",
-    title="Overdue Bucket vs Status SK"
-)
-st.plotly_chart(fig_bucket, use_container_width=True)
+st.dataframe(kontrak_perf)
+
+# =====================================================
+# OVERDUE DISTRIBUTION
+# =====================================================
+st.subheader(" Distribusi Overdue")
+
+fig2 = px.histogram(filtered, x='overdue_clean', nbins=30)
+st.plotly_chart(fig2, use_container_width=True)
 
 # =====================================================
 # RAW DATA
 # =====================================================
-with st.expander(" Raw Data Detail"):
-
-    st.dataframe(df, use_container_width=True)
+st.subheader(" Raw Data")
+st.dataframe(filtered)
