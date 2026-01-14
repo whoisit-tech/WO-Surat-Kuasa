@@ -82,13 +82,20 @@ status_filter = st.sidebar.multiselect(
     default=['SUKSES', 'GAGAL']
 )
 
+tipe_surat_selected = st.sidebar.multiselect(
+    "Tipe Surat",
+    df['tipe_surat'].dropna().unique(),
+    default=df['tipe_surat'].dropna().unique(),
+)
+
 search_kontrak = st.sidebar.text_input("Search No Kontrak")
 
 filtered = df[
     (df['bulan'].isin(bulan_selected)) &
     (df['collector_type'].isin(collector_type)) &
     (df['branch_city'].isin(branch_city)) &
-    (df['hasil'].isin(status_filter))
+    (df['hasil'].isin(status_filter)) &
+    (df['tipe_surat'].isin(tipe_surat_selected))
 ]
 
 if search_kontrak:
@@ -227,6 +234,7 @@ st.plotly_chart(fig_k, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
