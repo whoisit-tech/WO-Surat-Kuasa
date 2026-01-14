@@ -145,7 +145,7 @@ region_perf = (
         total_kontrak=('NoKontrak', 'nunique'),
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
-        total_sla_days=('sla_days', 'sum')
+        total_sla_days=('sla_days_exact', 'sum')
     )
     .reset_index()
 )
@@ -169,7 +169,7 @@ collector_perf = (
         total_kontrak=('NoKontrak', 'nunique'),
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
-        total_sla_days=('sla_days', 'sum')
+        total_sla_days=('sla_days_exact', 'sum')
     )
     .reset_index()
 )
@@ -195,7 +195,7 @@ kontrak_perf = (
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
         sla_sukses_days=(
-            'sla_days',
+            'sla_days_exact',
             lambda x: x[filtered.loc[x.index, 'hasil'] == 'SUKSES'].sum()
         )
     )
@@ -227,6 +227,7 @@ st.plotly_chart(fig_k, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
