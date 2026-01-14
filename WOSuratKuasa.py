@@ -145,7 +145,7 @@ region_perf = (
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
         kontrak_multi_sk=('NoKontrak', lambda x: x.value_counts().gt(1).sum()),
-        sla=('sla_days', 'xount')
+        sla=('sla_days', 'count')
     )
     .reset_index()
 )
@@ -213,6 +213,7 @@ st.plotly_chart(fig2, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data")
 st.dataframe(filtered)
+
 
 
 
