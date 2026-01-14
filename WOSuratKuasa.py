@@ -157,7 +157,7 @@ region_perf = (
     .reset_index()
 )
 
-region_perf['avg_cetak_sk'] = region_perf['total_sk'] / region_perf['total_kontrak']
+region_perf['AVG Cetak SK'] = region_perf['Total SK'] / region_perf['Total No Kontrak']
 region_perf['sukses_%'] = region_perf['sukses'] / region_perf['total_sk'] * 100
 region_perf['gagal_%'] = region_perf['gagal'] / region_perf['total_sk'] * 100
 
@@ -234,6 +234,7 @@ st.plotly_chart(fig_k, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
