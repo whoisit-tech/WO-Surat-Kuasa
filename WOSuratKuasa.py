@@ -10,7 +10,7 @@ import plotly.express as px
 # PAGE CONFIG
 # =====================================================
 st.set_page_config(page_title="Apps WO Monitoring", layout="wide")
-st.title(" Dashboard Monitoring Surat Kuasa (WO)")
+st.title("📊 Dashboard Monitoring Surat Kuasa (WO)")
 
 # =====================================================
 # LOAD DATA
@@ -53,7 +53,47 @@ df = load_data()
 # =====================================================
 # SIDEBAR FILTER
 # =====================================================
-st.sidebar.header(" Filter")
+st.sidebar.header("🔎 Filter")
+
+# Bulan filter
+bulan_opt = sorted(df['bulan'].dropna().unique())
+bulan_selected = st.sidebar.multiselect(
+    "Bulan",
+    bulan_opt,
+    default=bulan_opt
+)
+
+collector_type = st.sidebar.multiselect(
+    "Collector Type",
+    df['collector_type'].dropna().unique(),
+    default=df['collector_type'].dropna().unique()
+)
+
+branch_city = st.sidebar.multiselect(
+    "Region / Branch",
+    df['branch_city'].dropna().unique(),
+    default=df['branch_city'].dropna().unique()
+)
+
+status_filter = st.sidebar.multiselect(
+    "Hasil",
+    ['SUKSES', 'GAGAL'],
+    default=['SUKSES', 'GAGAL']
+)
+
+search_kontrak = st.sidebar.text_input("Search No Kontrak")
+
+filtered = df[
+    (df['bulan'].isin(bulan_selected)) &
+    (df['collector_type'].isin(collector_type)) &
+    (df['branch_city'].isin(branch_city)) &
+    (df['hasil'].isin(status_filter))
+]
+
+if search_kontrak:
+    filtered = filtered[filtered['NoKontrak'].astype(str).str.contains(search_kontrak, case=False)]
+# =====================================================
+st.sidebar.header("🔎 Filter")
 
 collector_type = st.sidebar.multiselect(
     "Collector Type",
@@ -74,6 +114,26 @@ filtered = df[
 
 # =====================================================
 # KPI SUMMARY
+# =====================================================
+# KPI SUMMARY
+# =====================================================
+
+total_sk = len(filtered)
+total_kontrak = filtered['NoKontrak'].nunique()
+
+sukses = filtered[filtered['hasil'] == 'SUKSES']
+gagal = filtered[filtered['hasil'] == 'GAGAL']
+
+sk_per_kontrak = filtered.groupby('NoKontrak').size().reset_index(name='total_sk')
+sk_sekali = sk_per_kontrak.query('total_sk == 1')
+sk_lebih_1 = sk_per_kontrak.query('total_sk > 1')
+
+col1, col2, col3, col4, col5 = st.columns(5)
+col1.metric("Total SK", total_sk)
+col2.metric("Total No Kontrak", total_kontrak)
+col3.metric("SK Sukses", f"{len(sukses)} ({len(sukses)/total_sk*100:.1f}%)")
+col4.metric("SK Gagal", f"{len(gagal)} ({len(gagal)/total_sk*100:.1f}%)")
+col5.metric("No Kontrak SK > 1x", f"{len(sk_lebih_1)} ({len(sk_lebih_1)/total_kontrak*100:.1f}%)")
 # =====================================================
 total_sk = len(filtered)
 total_kontrak = filtered['NoKontrak'].nunique()
@@ -97,7 +157,7 @@ col4.metric("SK Gagal", f"{len(gagal)} ({len(gagal)/total_sk*100:.1f}%)")
 # =====================================================
 # TREN SK BULANAN
 # =====================================================
-st.subheader(" Tren SK Bulanan")
+st.subheader("📈 Tren SK Bulanan")
 
 trend = (
     filtered
@@ -114,7 +174,7 @@ st.dataframe(trend)
 # =====================================================
 # REGION PERFORMANCE
 # =====================================================
-st.subheader(" Region Performance")
+st.subheader("🌍 Region Performance")
 
 region_perf = (
     filtered
@@ -125,7 +185,7 @@ region_perf = (
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
         kontrak_multi_sk=('NoKontrak', lambda x: x.value_counts().gt(1).sum()),
-        avg_sla=('sla_days', 'mean')
+        total_sla=('sla_days', 'sum')
     )
     .reset_index()
 )
@@ -138,7 +198,7 @@ st.dataframe(region_perf)
 # =====================================================
 # PROFESSIONAL COLLECTOR PERFORMANCE
 # =====================================================
-st.subheader(" Professional Collector Performance")
+st.subheader("👤 Professional Collector Performance")
 
 collector_perf = (
     filtered
@@ -149,7 +209,7 @@ collector_perf = (
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
         kontrak_multi_sk=('NoKontrak', lambda x: x.value_counts().gt(1).sum()),
-        avg_sla=('sla_days', 'mean')
+        total_sla=('sla_days', 'sum')
     )
     .reset_index()
 )
@@ -162,7 +222,7 @@ st.dataframe(collector_perf)
 # =====================================================
 # NO KONTRAK PERFORMANCE
 # =====================================================
-st.subheader(" Performance per No Kontrak")
+st.subheader("📄 Performance per No Kontrak")
 
 kontrak_perf = (
     filtered
@@ -172,7 +232,7 @@ kontrak_perf = (
         region=('branch_city', 'first'),
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
-        avg_sla=('sla_days', 'mean'),
+        total_sla=('sla_days', 'sum'),
         avg_overdue=('overdue_clean', 'mean')
     )
     .reset_index()
@@ -183,7 +243,7 @@ st.dataframe(kontrak_perf)
 # =====================================================
 # OVERDUE DISTRIBUTION
 # =====================================================
-st.subheader(" Distribusi Overdue")
+st.subheader("⏱️ Distribusi Overdue")
 
 fig2 = px.histogram(filtered, x='overdue_clean', nbins=30)
 st.plotly_chart(fig2, use_container_width=True)
@@ -191,5 +251,5 @@ st.plotly_chart(fig2, use_container_width=True)
 # =====================================================
 # RAW DATA
 # =====================================================
-st.subheader(" Raw Data")
+st.subheader("📋 Raw Data")
 st.dataframe(filtered)
