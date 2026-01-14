@@ -145,7 +145,7 @@ region_perf = (
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
         kontrak_multi_sk=('NoKontrak', lambda x: x.value_counts().gt(1).sum()),
-        total_sla=('sla_days', 'sum')
+        sla=('sla_days', 'xount')
     )
     .reset_index()
 )
@@ -169,7 +169,7 @@ collector_perf = (
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
         kontrak_multi_sk=('NoKontrak', lambda x: x.value_counts().gt(1).sum()),
-        total_sla=('sla_days', 'sum')
+        sla=('sla_days', 'count')
     )
     .reset_index()
 )
@@ -192,7 +192,7 @@ kontrak_perf = (
         region=('branch_city', 'first'),
         sukses=('hasil', lambda x: (x == 'SUKSES').sum()),
         gagal=('hasil', lambda x: (x == 'GAGAL').sum()),
-        total_sla=('sla_days', 'sum'),
+        sla=('sla_days', 'count'),
         avg_overdue=('overdue_clean', 'mean')
     )
     .reset_index()
@@ -213,6 +213,7 @@ st.plotly_chart(fig2, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data")
 st.dataframe(filtered)
+
 
 
 
