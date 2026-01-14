@@ -146,7 +146,7 @@ fig = px.bar(
 )
 
 fig.update_layout(
-    xaxis_title="Bulan',
+    xaxis_title="Bulan",
     yaxis_title="Jumlah SK",
     legend_title="Hasil",
 )
@@ -246,6 +246,7 @@ st.plotly_chart(fig_c, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
