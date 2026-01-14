@@ -136,8 +136,8 @@ trend = (
     .reset_index(name='total')
 )
 
-fig_c = px.bar(trend, x='bulan', y='total', color='hasil', markers=True)
-st.plotly_chart(fig_c, use_container_width=True)
+fig = px.bar(trend, x='bulan', y='total', color='hasil', markers=True)
+st.plotly_chart(fig, use_container_width=True)
 
 st.dataframe(trend)
 
@@ -232,6 +232,7 @@ st.plotly_chart(fig_c, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
