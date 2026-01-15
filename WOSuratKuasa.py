@@ -178,7 +178,19 @@ region_perf['avg_cetak_sk'] = region_perf['total_sk'] / region_perf['total_kontr
 region_perf['sukses_%'] = region_perf['sukses'] / region_perf['total_sk'] * 100
 region_perf['gagal_%'] = region_perf['gagal'] / region_perf['total_sk'] * 100
 
-st.dataframe(region_perf)
+region_display = region_perf.rename(coloumns={
+    'branch_city' : 'Region',
+    'total_sk' : 'Total SK Dicetak',
+    'total_kontrak' : 'Total No Kontrak',
+    'sukses' : 'Jumlah Sukses',
+    'gagal' : 'Jumlah Gagal',
+    'total_sla_days' : 'Total SLA (Hari)',
+    'avg_cetak_sk' : 'Rata-Rata Cetak SK Per No Kontrak',
+    'sukses_%' : 'Jumlah Sukses (%)',
+    'gagal_%' : 'Jumlah Gagal (%)'
+})
+
+st.dataframe(region_display)
 
 # =====================================================
 # PROFESSIONAL COLLECTOR PERFORMANCE
@@ -246,6 +258,7 @@ st.plotly_chart(fig_c, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
