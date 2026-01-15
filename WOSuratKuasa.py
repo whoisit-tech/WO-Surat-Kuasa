@@ -280,7 +280,7 @@ st.plotly_chart(fig_c, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 
-filtered_display = filtered.rename(columns={
+raw_display = filtered.rename(columns={
     'NoKontrak' : 'No Kontrak',
     'nama_konsumen' : 'Nama Konsumen',
     'professional_collector' : 'Professional Collector',
@@ -298,7 +298,8 @@ filtered_display = filtered.rename(columns={
     'bulan' : 'Bulan'
 })
     
-st.dataframe(filtered)
+st.dataframe(raw_display)
+
 
 
 
