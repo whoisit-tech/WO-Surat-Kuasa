@@ -229,7 +229,7 @@ collector_display = collector_perf.rename(columns={
 st.dataframe(collector_display)
 
 # =====================================================
-# NO KONTRAK PERFORMANCE (FINAL VERSION)
+# NO KONTRAK PERFORMANCE
 # =====================================================
 st.subheader(" Performance per No Kontrak")
 
@@ -250,6 +250,16 @@ kontrak_perf = (
     .reset_index()
 )
 
+kontrak_display = kontrak_perf.rename(columns={
+    'NoKontrak' : 'No Kontrak',
+    'region' : 'Region',
+    'tipe_surat' : 'Tipe Surat',
+    'total_sk' : 'Total SK DIcetak',
+    'sukses' : 'Jumlah Sukses',
+    'gagal' : 'Jumlah Gagal',
+    'sla_sukses_days' : 'Total SLA (Hari)'
+})
+
 st.dataframe(kontrak_perf)
 
 # =====================================================
@@ -269,7 +279,27 @@ st.plotly_chart(fig_c, use_container_width=True)
 # RAW DATA (FILTERED)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
+
+filtered_display = filtered.rename(columns={
+    'NoKontrak' : 'No Kontrak',
+    'nama_konsumen' : 'Nama Konsumen',
+    'professional_collector' : 'Professional Collector',
+    'assign_date' : 'Assign Date',
+    'finish_date' : 'Finish Date',
+    'tipe_surat' : 'Tipe Surat',
+    'status' : 'Status',
+    'collector_type' : 'Collector Type',
+    'overdue' : 'overdue',
+    'branch_city' : 'Region',
+    'norek' : 'No Rekening',
+    'nopin' : 'No Pin',
+    'hasil' : 'Hasil Status Akhir',
+    'sla_days_exact' : 'SLA (Hari),
+    'bulan' : 'Bulan'
+})
+    
 st.dataframe(filtered)
+
 
 
 
