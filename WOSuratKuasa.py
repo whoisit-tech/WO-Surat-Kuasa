@@ -289,7 +289,7 @@ raw_display = filtered.rename(columns={
     'tipe_surat' : 'Tipe Surat',
     'status' : 'Status',
     'collector_type' : 'Collector Type',
-    'overdue' : 'overdue',
+    'overdue' : 'Overdue',
     'branch_city' : 'Region',
     'norek' : 'No Rekening',
     'nopin' : 'No Pin',
@@ -299,6 +299,7 @@ raw_display = filtered.rename(columns={
 })
     
 st.dataframe(raw_display)
+
 
 
 
