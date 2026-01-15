@@ -294,11 +294,12 @@ filtered_display = filtered.rename(columns={
     'norek' : 'No Rekening',
     'nopin' : 'No Pin',
     'hasil' : 'Hasil Status Akhir',
-    'sla_days_exact' : 'SLA (Hari),
+    'sla_days_exact' : 'SLA (Hari)',
     'bulan' : 'Bulan'
 })
     
 st.dataframe(filtered)
+
 
 
 
