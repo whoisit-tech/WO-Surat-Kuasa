@@ -178,7 +178,7 @@ region_perf['avg_cetak_sk'] = region_perf['total_sk'] / region_perf['total_kontr
 region_perf['sukses_%'] = region_perf['sukses'] / region_perf['total_sk'] * 100
 region_perf['gagal_%'] = region_perf['gagal'] / region_perf['total_sk'] * 100
 
-region_display = region_perf.rename(coloumns={
+region_display = region_perf.rename(columns={
     'branch_city' : 'Region',
     'total_sk' : 'Total SK Dicetak',
     'total_kontrak' : 'Total No Kontrak',
@@ -258,6 +258,7 @@ st.plotly_chart(fig_c, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
