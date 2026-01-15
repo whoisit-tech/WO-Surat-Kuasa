@@ -214,7 +214,19 @@ collector_perf['avg_cetak_sk'] = collector_perf['total_sk'] / collector_perf['to
 collector_perf['sukses_%'] = collector_perf['sukses'] / collector_perf['total_sk'] * 100
 collector_perf['gagal_%'] = collector_perf['gagal'] / collector_perf['total_sk'] * 100
 
-st.dataframe(collector_perf)
+collector_display = collector_perf.rename(columns={
+    'branch_city' : 'Region',
+    'total_sk' : 'Total SK Dicetak',
+    'total_kontrak' : 'Total No Kontrak',
+    'sukses' : 'Jumlah Sukses',
+    'gagal' : 'Jumlah Gagal',
+    'total_sla_days' : 'Total SLA (Hari)',
+    'avg_cetak_sk' : 'Rata-Rata Cetak SK Per No Kontrak',
+    'sukses_%' : 'Jumlah Sukses (%)',
+    'gagal_&' : 'Jumlah Gagal (%)'
+})
+
+st.dataframe(collector_display)
 
 # =====================================================
 # NO KONTRAK PERFORMANCE (FINAL VERSION)
@@ -258,6 +270,7 @@ st.plotly_chart(fig_c, use_container_width=True)
 # =====================================================
 st.subheader(" Raw Data (Filtered)")
 st.dataframe(filtered)
+
 
 
 
